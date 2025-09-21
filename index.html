@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Максимально Улучшенная Фитнес-Платформа</title>
+<!-- Подключение Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Подключение иконок и шрифтов -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+    color: #222;
+    line-height: 1.6;
+  }
+
+  /* Заголовок */
+h1 {
+  text-align: center;
+  padding: 30px 20px 10px 20px;
+  font-size: 2.8em;
+  color: #222;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Контейнер */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Формы и секции */
+form {
+  background: rgba(255,255,255,0.95);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+form:hover {
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+/* Заголовки секций */
+h2 {
+  color: #2c3e50;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #2980b9;
+  padding-bottom: 8px;
+  font-size: 1.8em;
+}
+
+/* Лейблы и поля */
+label {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  font-weight: 500;
+}
+input[type="text"], input[type="number"], input[type="time"], select {
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  transition: border 0.2s ease;
+}
+input[type="text"]:focus, input[type="number"]:focus, input[type="time"]:focus, select:focus {
+  border-color: #2980b9;
+  outline: none;
+}
+
+/* Кнопки */
+button {
+  margin-top: 25px;
+  padding: 12px 25px;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 10px;
+  background-color: #27ae60;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+button:hover {
+  background-color: #2ecc71;
+  transform: translateY(-2px);
+}
+
+/* Результат */
+#result {
+  margin-top: 40px;
+  background: rgba(255,255,255,0.9);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* Графики */
+#chartContainer {
+  max-width: 800px;
+  margin: 50px auto;
+  background: rgba(255,255,255,0.9);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+#progress-section {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#progressBar {
+  width: 80%;
+  height: 25px;
+  background-color: #ddd;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 15px;
+}
+#progressFill {
+  height: 100%;
+  width: 0;
+  background-color: #2980b9;
+  transition: width 1s ease;
+  border-radius: 20px 0 0 20px;
+}
+#stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  width: 250px;
+  margin: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+.stat-card h3 {
+  margin-top: 0;
+  font-size: 1.4em;
+  color: #2c3e50;
+}
+.stat-card p {
+  font-size: 1.2em;
+  margin: 10px 0 0 0;
+}
+.toggle-section {
+  margin-top: 50px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.toggle-section button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background-color: #3498db;
+}
+.toggle-section button:hover {
+  background-color: #2980b9;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+.fade-in {
+  animation: fadeIn 1s forwards;
+}
+</style>
+</head>
+<body>
+
+<h1>Максимально Улучшенная Фитнес-Платформа</h1>
+<div class="container">
+
+<!-- Основная форма -->
+<form id="fitnessForm">
+  <h2>Личные данные</h2>
+  <label>Имя:
+    <input type="text" id="name" placeholder="Ваше имя" required />
+  </label>
+  <label>Возраст:
+    <input type="number" id="age" placeholder="Возраст" required min="10" max="120" />
+  </label>
+  <label>Рост (см):
+    <input type="number" id="height" placeholder="Рост" required min="100" max="250" />
+  </label>
+  <label>Вес (кг):
+    <input type="number" id="weight" placeholder="Вес" required min="20" max="300" />
+  </label>
+  <label>Уровень активности:
+    <select id="activityLevel" required>
+      <option value="низкий">Низкий</option>
+      <option value="средний">Средний</option>
+      <option value="высокий">Высокий</option>
+    </select>
+  </label>
+
+  <h2>Распорядок дня</h2>
+  <label>Время пробуждения:
+    <input type="time" id="wakeTime" required />
+  </label>
+  <label>Время отхода ко сну:
+    <input type="time" id="sleepTime" required />
+  </label>
+  <label>Первое питание:
+    <input type="time" id="meal1" required />
+  </label>
+  <label>Второе питание:
+    <input type="time" id="meal2" required />
+  </label>
+  <label>Третье питание:
+    <input type="time" id="meal3" required />
+  </label>
+
+  <h2>График тренировок</h2>
+  <div id="trainingScheduleContainer"></div>
+  <button type="button" onclick="generateTrainingSchedule()">Создать график тренировок</button>
+  
+  <h2 style="margin-top:30px;">План питания</h2>
+  <div id="mealPlan"></div>
+  <button type="button" onclick="generateMealPlan()">Обновить план питания</button>
+  
+  <div style="margin-top:30px;">
+    <button type="submit">Показать программу</button>
+  </div>
+</form>
+
+<!-- Результаты -->
+<div id="result"></div>
+
+<!-- Графики -->
+<div id="chartContainer">
+  <h2 style="text-align:center;">График тренировок</h2>
+  <canvas id="trainingChart"></canvas>
+</div>
+
+<!-- Статистика и прогресс -->
+<div id="stats">
+  <div class="stat-card fade-in">
+    <h3>Цели</h3>
+    <p id="goalStatus">Нет данных</p>
+  </div>
+  <div class="stat-card fade-in">
+    <h3>Прогресс по весу</h3>
+    <p id="weightProgress">0 кг</p>
+  </div>
+  <div class="stat-card fade-in">
+    <h3>Калорийность</h3>
+    <p id="calorieInfo">0 ккал</p>
+  </div>
+</div>
+
+<!-- Интерактивные вкладки -->
+<div class="toggle-section fade-in">
+  <button onclick="showTab('progress')">Прогресс</button>
+  <button onclick="showTab('statistics')">Статистика</button>
+</div>
+
+<div id="tabProgress" style="display:none; margin-top:30px;">
+  <h2 style="text-align:center;">История прогресса</h2>
+  <canvas id="progressChart"></canvas>
+</div>
+<div id="tabStatistics" style="display:none;">
+  <h2 style="text-align:center;">Статистика тренировки</h2>
+  <canvas id="statsChart"></canvas>
+</div>
+
+</div>
+
+<script>
+const daysOfWeek = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+
+let trainingSchedule = {};
+let trainingChartInstance = null;
+let progressChartInstance = null;
+let statsChartInstance = null;
+let progressHistory = []; // история прогресса за недели
+let currentWeight = null;
+
+// Создаём расписание тренировок
+function generateTrainingSchedule() {
+  trainingSchedule = {};
+  const container = document.getElementById('trainingScheduleContainer');
+  container.innerHTML = '';
+
+  daysOfWeek.forEach(day => {
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.justifyContent = 'space-between';
+    div.style.marginBottom = '8px';
+
+    const labelDiv = document.createElement('div');
+    labelDiv.innerHTML = `<strong>${day}:</strong>`;
+    labelDiv.style.flex = '1';
+
+    const select = document.createElement('select');
+    select.id = `train_${day}`;
+    select.innerHTML = `
+      <option value="выходной">Выходной</option>
+      <option value="тренировка">Тренировка</option>
+    `;
+    select.style.marginRight = '10px';
+
+    const timeInput = document.createElement('input');
+    timeInput.type = 'time';
+    timeInput.id = `time_${day}`;
+    timeInput.disabled = true;
+    timeInput.style.width = '150px';
+
+    select.onchange = () => {
+      timeInput.disabled = (select.value !== 'тренировка');
+    };
+
+    div.appendChild(labelDiv);
+    div.appendChild(select);
+    div.appendChild(timeInput);
+    container.appendChild(div);
+  });
+}
+
+// Создать план питания
+function generateMealPlan() {
+  const mealPlanDiv = document.getElementById('mealPlan');
+  mealPlanDiv.innerHTML = `
+    <ul>
+      <li><b>Завтрак:</b> Омлет, овсянка, фрукты</li>
+      <li><b>Обед:</b> Курица, рис, овощи</li>
+      <li><b>Ужин:</b> Рыба, салат, киноа</li>
+    </ul>
+  `;
+}
+
+// Обновлять прогресс по весу
+function updateWeightProgress(newWeight) {
+  document.getElementById('weightProgress').textContent = `${newWeight} кг`;
+  currentWeight = newWeight;
+  // добавляем в историю
+  const today = new Date().toLocaleDateString();
+  progressHistory.push({date: today, weight: newWeight});
+  updateProgressChart();
+}
+
+// Обновление прогресс-диаграммы
+function updateProgressChart() {
+  const ctx = document.getElementById('progressChart').getContext('2d');
+  if (progressChartInstance) progressChartInstance.destroy();
+
+  const labels = progressHistory.map(item => item.date);
+  const data = progressHistory.map(item => item.weight);
+
+  progressChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Вес за время',
+        data: data,
+        fill: false,
+        borderColor: '#2980b9',
+        backgroundColor: '#2980b9',
+        tension: 0.4,
+        pointBackgroundColor: '#2980b9'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
+      },
+      scales: {
+        y: {
+          beginAtZero: false
+        }
+      }
+    }
+  });
+}
+
+// Переключение вкладок
+function showTab(tabName) {
+  document.getElementById('tabProgress').style.display = (tabName==='progress') ? 'block' : 'none';
+  document.getElementById('tabStatistics').style.display = (tabName==='statistics') ? 'block' : 'none';
+  if (tabName==='statistics') {
+    updateStatsChart();
+  }
+}
+
+// Основная обработка формы
+document.getElementById('fitnessForm').onsubmit = function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const age = parseInt(document.getElementById('age').value);
+  const height = parseFloat(document.getElementById('height').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const activityLevel = document.getElementById('activityLevel').value;
+  const wakeTime = document.getElementById('wakeTime').value;
+  const sleepTime = document.getElementById('sleepTime').value;
+  const meal1 = document.getElementById('meal1').value;
+  const meal2 = document.getElementById('meal2').value;
+  const meal3 = document.getElementById('meal3').value;
+
+  // Расчет базового метаболизма
+  const bmr = Math.round(10 * weight + 6.25 * height - 5 * age + 5);
+  const calories = Math.round(bmr * { 'низкий': 1.2, 'средний': 1.55, 'высокий': 1.725 }[activityLevel]);
+
+  // Собираем график тренировок
+  const scheduleArr = [];
+  const labels = [];
+  const dataArr = [];
+  daysOfWeek.forEach(day => {
+    const activityType = document.getElementById(`train_${day}`).value;
+    const timeVal = document.getElementById(`time_${day}`).value;
+    if (activityType==='тренировка') {
+      scheduleArr.push(`<b>${day}:</b> Тренировка в ${timeVal}`);
+      labels.push(day);
+      dataArr.push(1);
+    } else {
+      scheduleArr.push(`<b>${day}:</b> Выходной`);
+      labels.push(day);
+      dataArr.push(0);
+    }
+  });
+
+  // Обновляем результаты
+  document.getElementById('result').innerHTML=`
+    <h2>Программа для <em>${name}</em></h2>
+    <p><b>Рекомендуемая норма калорий:</b> ${calories} ккал</p>
+    <h3>Распорядок дня</h3>
+    <ul>
+      <li><b>Пробуждение:</b> ${wakeTime}</li>
+      <li><b>Отход ко сну:</b> ${sleepTime}</li>
+      <li><b>Первое питание:</b> ${meal1}</li>
+      <li><b>Второе питание:</b> ${meal2}</li>
+      <li><b>Третье питание:</b> ${meal3}</li>
+    </ul>
+    <h3>График тренировок</h3>
+    <div>${scheduleArr.join('<br>')}</div>
+  `;
+
+  // Обновляем график
+  updateChart(labels, dataArr);
+
+  // Обновляем прогресс по весу
+  updateWeightProgress(weight);
+  // Обновляем статистику
+  document.getElementById('goalStatus').textContent = weight < 80 ? 'Достигается снижение веса' : 'Поддержка текущего веса';
+  document.getElementById('calorieInfo').textContent = calories + ' ккал';
+
+  // Обновляем прогресс-статистику
+  showTab('progress');
+};
+
+// Обновление графика тренировок
+function updateChart(labels, data) {
+  const ctx = document.getElementById('trainingChart').getContext('2d');
+  if (trainingChartInstance) trainingChartInstance.destroy();
+  trainingChartInstance = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Тренировка', 'Выходной'],
+      datasets: [{
+        label: 'Дни тренировок и отдыха',
+        data: [
+          data.filter(d => d===1).length,
+          data.filter(d => d===0).length
+        ],
+        backgroundColor: ['#27ae60', '#c0392b']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+}
+
+// Обновление прогресс-диаграммы
+function updateProgressBar() {
+  const percent = currentWeight ? Math.min(100, Math.max(0, (currentWeight/100)*100)) : 0;
+  document.getElementById('progressFill').style.width = percent + '%';
+  document.getElementById('progressFill').textContent = Math.round(percent) + '%';
+}
+
+// Обновление статистического графика
+function updateStatsChart() {
+  const ctx = document.getElementById('statsChart').getContext('2d');
+  if (statsChartInstance) statsChartInstance.destroy();
+  // Демонстративный график — например, прогресс веса за месяцы
+  const labels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл'];
+  const data = [80, 78, 77, 76, 75, 74, currentWeight || 73];
+
+  statsChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Вес (кг)',
+        data: data,
+        fill: false,
+        borderColor: '#2980b9',
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: false }
+      }
+    }
+  });
+}
+
+// Переключение вкладок
+function showTab(tabName) {
+  document.getElementById('tabProgress').style.display = (tabName==='progress') ? 'block' : 'none';
+  document.getElementById('tabStatistics').style.display = (tabName==='statistics') ? 'block' : 'none';
+  if (tabName==='statistics') {
+    updateStatsChart();
+  }
+}
+
+// Инициализация
+generateTrainingSchedule();
+generateMealPlan();
+
+</script>
+</body>
+</html>
